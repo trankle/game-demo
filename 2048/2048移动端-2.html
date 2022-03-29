@@ -1,0 +1,470 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=300,maximum-scale=3.0,minimum-scale=1.0,user-scalable=no">
+    <title></title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+        }
+
+        html, body {
+            position: relative;
+            width: 100%;
+            height: 100%;
+        }
+
+        .block {
+            width: 100%;
+            height: 100%;
+        }
+
+        .par {
+            width: 264px;
+            height: 264px;
+            position: absolute;
+            margin: auto;
+            left: 0;
+            top: 0;
+            right: 0;
+            bottom: 0;
+            background: #a7791c;
+            padding: 5px;
+        }
+
+        .colume {
+            float: left;
+            width: 60px;
+            height: 60px;
+            background: #b7a466;
+            margin: 3px;
+            text-align: center;
+            line-height: 60px;
+            font-size: 1.3rem;
+            font-weight: bold;
+            color: #fff;
+        }
+
+        #start {
+            position: absolute;
+            right: 0.8rem;
+            top: 2.5rem;
+            color: #987b12;
+            outline: none;
+            border: 1px solid #b7a466;
+            font-size: 12px;
+            padding: 2px 3px;
+        }
+
+        .color2 {
+            background: #d3bfad;
+        }
+
+        .color4 {
+            background: #b9a593;
+        }
+
+        .color8 {
+            background: #a79381;
+        }
+
+        .color16 {
+            background: #d386cd;
+        }
+
+        .color32 {
+            background: #8b81d3;
+        }
+
+        .color64 {
+            background: #7cc8d3;
+        }
+
+        .color128 {
+            background: #21c3ff;
+        }
+
+        .color256 {
+            background: #daff48;
+        }
+
+        .color512 {
+            background: #d23bff;
+        }
+
+        .color1024 {
+            background: #ffdc30;
+        }
+
+        .color2048 {
+            background: #ffbdf4;
+        }
+
+        .color4096 {
+            background: #ff3a3d;
+        }
+
+        .score {
+            position: absolute;
+            font-size: 0.7rem;
+            left: 45%;
+            top: 2.6rem;
+        }
+    </style>
+</head>
+<body>
+<button id="start">开始游戏</button>
+<span class="score">分数：<span></span></span>
+
+<div class="block">
+    <div class="par">
+
+    </div>
+</div>
+<script>
+    /*
+     * 2048
+     *
+     * */
+    var map = [
+        [0, 0, 0, 0],
+        [0, 0, 0, 0],
+        [0, 0, 0, 0],
+        [0, 0, 0, 0]
+    ];
+    //定义分数
+    var score = 0;
+    //记录生成的容器
+    var result = [];
+    function createMap(element) {
+        map.map(function (hvalue, hindex) {
+            //这里遍历出行
+            var hang = document.createElement("div");
+            hang.classList.add("hang");
+            result.push([]);
+            hvalue.map(function (cvalue, cindex) {
+                //产生每行的4个列
+                var colume = document.createElement("div");
+                colume.classList.add("colume");
+                hang.appendChild(colume);
+                result[hindex].push(colume);
+            });
+            element.appendChild(hang);
+        });
+    }
+
+    //随机数字的方法   产生2或者4  都是90%  10%概率
+    function randomNum() {
+        return Math.random() < 0.9 ? 2 : 4;
+    }
+    function randomIndex() {
+        return Math.floor(Math.random() * 4);
+    }
+    //随机在map中找位置  放数字
+    function randomLoc(number) {
+        //检测没有0位置的时候 直接
+        //gameover
+        var count = 0;
+/*
+        map.forEach(function (v) {
+            v.forEach(function (value) {
+                if (value == 0) {
+                    count++;
+                }
+            });
+        });
+        if (count == 0) {
+            alert("game over!");
+            return;
+        }*/
+        /*     map.forEach(function(val1){
+           // console.log((val1.indexOf(0) != -1));
+            //有0 加1
+            if( val1.indexOf(0) != -1);{
+               count++;
+            }
+        });
+        //无 0 进
+        if (count == 0){
+            console.log("gameover");
+            alert("gameover");
+            return;
+        }*/
+        map.forEach(function (valr) {
+            valr.forEach(function(valc){
+                if(valc==0){
+                    count++;
+                }
+            }) ;
+        });
+        //0 * 0 进
+        if(!count){
+            alert("gameover"); return;
+        }
+        for (; ;) {
+            //随机行和列的索引
+            var h = randomIndex();
+            var c = randomIndex();
+            if (map[h][c] == 0) {
+                map[h][c] = number;
+                renderPage();
+                break;
+            }
+        }
+    }
+    //修改当前页面上的显示  以及数字对应数字的颜色
+    function renderPage() {
+        for (var i = 0; i < map.length; i++) {
+            for (var k = 0; k < map[i].length; k++) {
+                result[i][k].innerHTML = map[i][k] == 0 ? "" : map[i][k];
+                result[i][k].className = "colume";
+                result[i][k].setAttribute("data-add", "no");
+                if (map[i][k] != 0) {
+                    //每个数字对应自己不同的颜色
+                    result[i][k].classList.add("color" + map[i][k]);
+                }
+            }
+        }
+    }
+    window.onload = function () {
+        //开始游戏按钮的事件
+        var start = document.querySelector("#start");
+        var parentEle = document.querySelector(".par");
+        var scoreele = document.querySelector(".score");
+        scoreele.children[0].innerHTML = score;
+        //创建地图
+        createMap(parentEle);
+
+        //添加中间块的触屏事件    上  下  左  右
+        var startx, starty, endx, endy;
+        parentEle.addEventListener("touchstart", function (e) {
+            var touch = e.touches[0];//获取第一手指
+            startx = touch.pageX;
+            starty = touch.pageY;
+        });
+        parentEle.addEventListener("touchmove", function (e) {
+            var touch = e.touches[0];
+            endx = touch.pageX;
+            endy = touch.pageY;
+            console.log(endx, endy);
+        });
+        parentEle.addEventListener("touchend", function (e) {
+            //判断上下左右四个方向
+            var chax = endx - startx;
+            var chay = endy - starty;
+            var way = changeWay(chax, chay);
+            //根据上下左右 移动map里面的集合 累计或者直接移动
+            switch (way) {
+                case "left":
+                    transLeft();
+                    break;
+                case "right":
+                    transright();
+                    break;
+                case "up":
+                    transup();
+                    break;
+                case "down":
+                    transdown();
+                    break;
+            }
+            //渲染界面
+            renderPage();
+            //随机数据
+            var num = randomNum();
+            randomLoc(num);
+            addscore(score);
+        });
+
+
+        //封装移动的方法
+        function transdown(){
+            for(var c=0;c<=3;c++){//0-3lie
+                for(var r=3;r>=0;r--){//3-1hang
+                    //本身 为0 退出
+                    if(map[r][c]==0){
+                        continue;
+                    }
+                    else{//与xia边所有数字比较
+                        var count=0;
+                        for(var i=r+1;i<=3;i++){
+                            //当前的数map[i-1][c] xia边的数 map[i][c]
+                            // 相等合并  count一个数只能合并一次
+                            if(map[i-1][c] == map[i][c] && !count && result[i][c].getAttribute("data-add")== "no"){
+                                count++;
+                                //xia边合并 设置可加属性 yes
+                                map[i][c] = map[i][c]*2;
+                                //合并数目 +到分数上
+                                var num=map[i][c];
+                                score+=num;
+                                result[i][c].setAttribute("data-add","yes");
+                                //当前清零
+                                map[i-1][c]=0;
+                            }//xia边为0  交换位置
+                            else if(map[i][c]==0){
+                                var temp=map[i-1][c];
+                                map[i-1][c] = map[i][c];
+                                map[i][c] = temp;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        function transup(){
+            for(var c=0;c<=3;c++){//0-3lie
+                for(var r=0;r<=3;r++){//0-3hang
+                    //本身 为0 退出
+                    if(map[r][c]==0){
+                        continue;
+                    }
+                    else{//与上边所有数字比较
+                        var count=0;
+                        for(var i=r-1;i>=0;i--){
+                            //当前的数map[i+1][c] 上边的数 map[i][c]
+                            // 相等合并  一个数只能合并一次
+                            if(map[i+1][c] == map[i][c] && !count && result[i][c].getAttribute("data-add")== "no"){
+                                count++;
+                                //shang边合并 设置可加属性 yes
+                                map[i][c] = map[i+1][c]*2;
+                                //合并数目 +到分数上
+                                var num=map[i][c];
+                                score+=num;
+                                result[i][c].setAttribute("data-add","yes");
+                                //当前清零
+                                map[i+1][c]=0;
+                            }//shang边为0  交换位置
+                            else if(map[i][c]==0){
+                                var temp=map[i][c];
+                                map[i][c] = map[i+1][c];
+                                map[i+1][c] = temp;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        function transright(){
+            for(var r=0;r<=3;r++){//0-3hang
+                for(var c=3;c>=0;c--){//3-0lie
+                    //本身 为0 退出
+                    if(map[r][c]==0){
+                        continue;
+                    }
+                    else{//与右边所有数字比较
+                        var count=0;
+                        for(var i=c+1;i<=3;i++){
+                            //当前的数map[r][i-1] 右边的数 map[r][i]
+                            // 相等合并  一个数只能合并一次
+                            if(map[r][i-1] == map[r][i] && !count && result[r][i].getAttribute("data-add")== "no"){
+                                count++;
+                                //右边合并
+                                map[r][i] = map[r][i-1]*2;
+                                //合并数目 +到分数上
+                                var num=map[r][i];
+                                score+=num;
+                                result[r][i].setAttribute("data-add","yes");
+                                //当前清零
+                                map[r][i-1]=0;
+                            }//you边为0  交换位置
+                            else if(map[r][i]==0){
+                                var temp=map[r][i-1];
+                                map[r][i-1] = map[r][i];
+                                map[r][i] = temp;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+       function transLeft(){
+           for(var r=0;r<=3;r++){//0-3hang
+                for(var c=0;c<=3;c++){//0-3lie
+                    //本身 为0 退出
+                    if(map[r][c]==0){
+                        continue;
+                    }
+                    else{//与左边所有数字比较
+                        var count=0;
+                        for(var i=c-1;i>=0;i--){
+                        //当前的数map[r][i+1] 左边的数 map[r][i]
+                            // 相等合并  一个数只能合并一次
+                            if(map[r][i+1] == map[r][i] && !count && result[r][i].getAttribute("data-add")== "no"){
+                                count++;
+                                //左边合并
+                                map[r][i] = map[r][i+1]*2;
+                                //合并数目 +到分数上
+                                var num=map[r][i];
+                                score+=num;
+                                result[r][i].setAttribute("data-add","yes");
+                                //当前清零
+                                map[r][i+1]=0;
+                            }//左边为0  交换位置
+                            else if(map[r][i]==0){
+                                var temp=map[r][i+1];
+                                map[r][i+1] = map[r][i];
+                                map[r][i] = temp;
+                            }
+                        }
+                    }
+                }
+           }
+       }
+
+
+        //计分的方法
+        function addscore(score) {
+            //score += num;
+            scoreele.children[0].innerHTML = score;
+        }
+
+
+        //声明一个方法 返回方向的方法
+        function changeWay(x, y) {
+            if (Math.abs(x) > Math.abs(y) && x > 10) {
+                return "right";
+            }
+            else if (Math.abs(x) > Math.abs(y) && x < 10) {
+                return "left";
+            }
+            else if (Math.abs(x) < Math.abs(y) && y > 10) {
+                return "down";
+            }
+            else if (Math.abs(x) < Math.abs(y) && y < 10) {
+                return "up";
+            }else{
+                return;
+            }
+
+        }
+
+        //开始的事件
+        start.onclick = function () {
+            resetmap();
+            //产生两个数字
+            var num1 = randomNum();
+            var num2 = randomNum();
+            //随机位置的方法
+            randomLoc(num1);
+            randomLoc(num2);
+
+        }
+
+        //重新开始  map里面全部清0
+        function resetmap() {
+            score=0;
+            for (var i = 0; i < map.length; i++) {
+                for (var k = 0; k < map[i].length; k++) {
+                    map[i][k] = 0;
+                    //清除所有的颜色添加类
+                    result[i][k].className = "colume";
+                }
+            }
+        }
+    }
+
+</script>
+</body>
+</html>

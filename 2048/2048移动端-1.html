@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=300,maximum-scale=3,minimum-scale=1,user-scalable=no">
+    <title>2048移动端</title>
+    <style>
+        html, body {
+            width: 100%;
+            height: 100%;
+           /* position: relative;*/
+        }
+        button{
+            border: none;
+            outline: none;
+        }
+        *{
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        .gamename{
+            margin: 2rem auto;
+            width: 285px;
+            color: #635148;
+        }
+        h1>div{
+            margin-left: .3rem;
+            width:3.5rem;
+            font-size: .5rem;
+            float: right;
+            text-align: center;
+            background: #b2a696;
+            color: #e7dac9;
+            border-radius:5px;
+        }
+        h1>div>span,button.newgame{
+            color: #fff;
+            font-weight: bold;
+            font-size: .5rem;
+        }
+        button.newgame{
+            float: right;
+            background: #8f7a66;
+            border-radius: 5px;
+            padding: .3rem;
+        }
+        .par{
+            width:285px;
+            height: 285px;
+            background: #b2a696;
+            color: #635148;
+            text-align: center;
+            font-size: 2rem;
+            margin: .5rem;
+            padding: .5rem;
+/*            position: absolute;
+            left: 0;
+            right: 0;*/
+        }
+        .cloumn{
+            margin: .2rem;
+            width: 60px;
+            height: 60px;
+            line-height: 60px;
+            float: left;
+            background: #e7dac9;
+        }
+        .color2{
+            background: #f52c1e;
+        }
+        .color4{
+            background: #f4f5af;
+        }
+        .color8{
+            background: #ced72a;
+        }
+        .color16{
+            background: #edf62d;
+        }
+    </style>
+</head>
+<body>
+<div class="gamename">
+    <h1>2048
+        <div>BEST<br/><span>1234</span></div>
+        <div>SCORE<br/><span>0</span></div>
+        </h1>
+    <p>合并相同方块，得到2048的方块! <button class="newgame">新游戏</button></p>
+</div>
+<div class="par">
+
+</div>
+<script>
+/*2048游戏 0 2 4 8 16 32···*/
+/*
+ 1.创建4*4map，创建div放入父元素和数组
+ 2.触屏上下左右
+ 3.开始游戏-newgame随机生成数字
+ 4.随机位置放入3生成的数字，已有位置不行
+ 5.页面渲染，对应数字有对应类，color0 2 4 8 16 32···
+ 6.根据上下左右--map改变，跳转到5
+ */
+var map=[
+        [0,0,0,0],
+        [0,0,0,0],
+        [0,0,0,0],
+        [0,0,0,0]
+    ];
+var result=[];
+var par=document.getElementsByClassName("par")[0];
+/*1.创建4*4map，创建div放入父元素和数组*/
+    function creatMap(ele){
+        ele.forEach(function (rvalue,rindex) {
+            var row=document.createElement("div"); //生成行div 添加row类
+            row.className="row";
+            result.push([]);
+            rvalue.map(function (cvalue,cindex) {
+                var cloumn=document.createElement("div");//生成列div 每一个添加color0类
+                cloumn.className="cloumn";
+                row.appendChild(cloumn);//column列插入到行中
+                result[rindex].push(cloumn);
+            });
+            par.appendChild(row); //row行插入到父元素par
+        });
+        //console.log(result);
+    }
+
+    //  随机生成2-4概率分别为0.9-0.1
+    function randomNum(){
+         return Math.random()>0.9?4:2;
+       // console.log(Math.random() > 0.8 ? 4 : 2);
+    }
+   //随机生成索引0-3
+    function randomIndex(){
+        return Math.floor(Math.random()*4);
+    }
+    //将生成数字随机放入 map
+    function randomLoc(num){
+        for (;;){/**************************************************/
+            var rindex=randomIndex();
+            var cindex=randomIndex();
+            if(map[rindex][cindex]==0){
+                map[rindex][cindex]=num;
+                break;//找到位置停止循环
+            }
+        }
+    }
+/* 5.页面渲染，对应数字有对应类，color0 2 4 8 16 32···*/
+    //根据map内容渲染页面
+    function renderPage(){
+        for(var r=0;r< map.length;r++){
+            for(var c=0;c<map[r].length;c++){
+                result[r][c].className="cloumn"; // 类 全部重置为cloumn
+                if(map[r][c]!=0){
+                    result[r][c].innerHTML=map[r][c];
+                    result[r][c].classList.add("color"+map[r][c]);
+                }
+            }
+        }
+    }
+    //重置map，result[][]内容和类cloumn
+    function resetMap(){
+        for(var r=0;r< map.length;r++){
+            for(var c=0;c<map[r].length;c++) {
+                map[r][c]=0;
+                result[r][c].innerHTML="";
+                result[r][c].className="cloumn";
+                }
+            }
+    }
+/* 3.开始游戏-newgame随机生成数字放入map*/
+    function gameStart(){
+        var newgame=document.getElementsByClassName("newgame")[0];
+        newgame.onclick=function(){
+            resetMap();
+            var num1=randomNum();
+            var num2=randomNum();
+            randomLoc(num1);
+            randomLoc(num2);
+            renderPage();
+        }
+    }
+/* 2.触屏上下左右*/
+    function changeWay(x,y){
+            if(Math.abs(x) >Math.abs(y) && x>0){
+                return "left";
+            }else if(Math.abs(x) >Math.abs(y) && x<0){
+                return "right";
+            }else if(Math.abs(x) <Math.abs(y) && y<0){
+                return "down";
+            }else if(Math.abs(x) <Math.abs(y) && y>0){
+                return "up";
+            }
+    }
+/*6.moveLeft map改变*/
+    /*function moveLeft(){
+        for(var r=0;map.length;r++){
+            var count=1;//每一行之合并一次
+            for(var c=1;map.length;c++){
+                if(map[r][c]==0){ //本身为0
+                    continue;
+                }else{ //本身不为0
+                    if(map[r][c-1]==0){ //前一个为 0
+                        map[r][c-1]==map[r][c];
+                        map[r][c]==0;
+                    }else if(map[r][c-1]==map[r][c]&&count){ //前一个相等&&还没合并过
+                        map[r][c-1]==map[r][c]*2;
+                        map[r][c]==0;
+                        count--;
+                    }else{
+                        continue;
+                    }
+                }
+            }
+        }
+       // renderPage();
+        console.log(map);
+    }*/
+    function moveRight(){
+        console.log("r");
+    }
+    function moveUp(){
+        console.log("u");
+    }
+    function moveDown(){
+        console.log("d");
+    }
+window.onload=function(){
+/*2048*/
+        creatMap(map);
+        gameStart();
+    var xstart,ystart,xend,yend, xse,yse,way;            /*能否当作函数封装在外面？*/
+    par.addEventListener("touchstart",function(e){
+        var touch= e.touches[0];
+        xstart= touch.pageX;
+        ystart= touch.pageY;
+    });
+    par.addEventListener("touchmove",function(e){
+        var touch= e.touches[0];
+        xend= touch.pageX;
+        yend= touch.pageY;
+    });
+    par.addEventListener("touchend",function(e) {
+        xse = xstart - xend;
+        yse = ystart - yend;
+        way=changeWay(xse, yse);
+        switch (way){
+            case "left":moveLeft();break;
+            case "right":moveRight();break;
+            case "up":moveUp();break;
+            case "down":moveDown();break;
+        }
+    });
+
+}
+</script>
+</body>
+</html>

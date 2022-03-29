@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="UTF-8">
+    <title></title>
+    <style>
+        .map {
+            width: 840px;
+            height: 840px;
+            margin: auto;
+            position: relative;
+            border: 1px solid #000;
+        }
+
+        .smallb {
+            position: absolute;
+            width: 70px;
+            height: 70px;
+            border: 1px solid #000;
+            box-sizing: border-box;
+        }
+
+        .q {
+            background: #aa551a;
+        }
+
+        .x {
+            background: #67c9f1;
+        }
+
+        .m {
+            background: silver;
+        }
+
+        .people {
+            width: 100%;
+            height: 100%;
+        }
+
+        .xiang {
+            position: absolute;
+            z-index: 1;
+            width: 100%;
+            height: 100%;
+            left: 0;
+        }
+    </style>
+</head>
+<body>
+<div class="map">
+
+</div>
+<script>
+    /*
+     * 创建地图
+     * 1  代表墙
+     * 2  代表箱子
+     * 3   小人
+     * 4. 中点
+     * */
+    var map = [
+        [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+        [1, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+        [1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+        [1, 0, 0, 2, 0, 1, 0, 0, 0, 0, 0, 1],
+        [1, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 1],
+        [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+        [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+        [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+        [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+        [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+        [1, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+        [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
+    ];
+    //动态遍历产生map
+    var mapele = document.getElementsByClassName("map")[0];
+    var people = null;
+    var xiang = null;
+    var zhong = null;
+    var qiang = null;
+    var maplist = [];
+    createmap();
+    function createmap() {
+        map.forEach(function (val, index) {
+            maplist.push([]);
+            val.forEach(function (v, i) {
+                var div = document.createElement("div");
+                div.classList.add("smallb");
+                div.style.left = i * 70 + "px";
+                div.style.top = index * 70 + "px";
+                mapele.appendChild(div);
+                maplist[index].push(div);
+                if (v == 1) {
+                    qiang = document.createElement("img");
+                    qiang.className = "people";
+                    qiang.src = "./img/qq.jpg";
+                    div.appendChild(qiang);
+                }
+                else if (v == 2) {
+                    xiang = document.createElement("img");
+                    xiang.className = "xiang";
+                    xiang.src = "./img/xx.jpg";
+                    div.appendChild(xiang);
+                }
+                else if (v == 4) {
+                    zhong = document.createElement("img");
+                    zhong.className = "people";
+                    zhong.src = "./img/zz.jpg";
+                    div.appendChild(zhong);
+                }
+                else if (v == 3) {
+                    people = document.createElement("img");
+                    people.className = "people";
+                    people.src = "./img/people.png";
+                    people.setAttribute("data-x", i);
+                    people.setAttribute("data-y", index);
+                    div.appendChild(people);
+                }
+            });
+        });
+    }
+
+    window.onkeypress = function (e) {
+       // console.log(maplist);
+        //获取初始人的索引
+        var x = parseInt(people.getAttribute("data-x"));
+        var y = parseInt(people.getAttribute("data-y"));
+        switch (e.key) {
+            case "w":
+                if (map[y - 1][x] == 1 || map[y - 1][x] == 4) {
+                    return;
+                }
+                if (map[y - 1][x] == 2 && map[y - 2][x] != 1) {
+                    if (map[y - 2][x] == 4) {
+                        alert("成功！");
+                    }
+                    maplist[y - 2][x].appendChild(xiang);
+                    map[y - 1][x] = 0;
+                    map[y - 2][x] = 2;
+                }
+                y -= 1;
+                if (map[y][x] == 0 && map[y][x] != 4) {
+                    maplist[y][x].appendChild(people);
+                    map[y][x] = 3;
+                    map[y + 1][x] = 0;
+                }
+                break;
+            case "a":
+                if (map[y][x - 1] == 1 || map[y][x - 1] == 4) {
+                    return;
+                }
+                if (map[y][x - 1] == 2 && map[y][x - 2] != 1) {
+                    if (map[y][x - 2] == 4) {
+                        alert("成功！");
+                    }
+                    maplist[y][x - 2].appendChild(xiang);
+                    map[y][x - 1] = 0;
+                    map[y][x - 2] = 2;
+                }
+                x -= 1;
+                if (map[y][x] == 0 && map[y][x] != 4) {
+                    maplist[y][x].appendChild(people);
+                    map[y][x] = 3;
+                    map[y][x + 1] = 0;
+                }
+                break;
+            case "d":
+                if (map[y][x + 1] == 1 || map[y][x + 1] == 4) {
+                    return;
+                }
+                if (map[y][x + 1] == 2 && map[y][x + 2] != 1) {
+                    if (map[y][x + 2] == 4) {
+                        alert("成功！");
+                    }
+                    maplist[y][x + 2].appendChild(xiang);
+                    map[y][x + 1] = 0;
+                    map[y][x + 2] = 2;
+                }
+                x += 1;
+                if (map[y][x] == 0 && map[y][x] != 4) {
+                    maplist[y][x].appendChild(people);
+                    map[y][x] = 3;
+                    map[y][x - 1] = 0;
+                }
+                break;
+            case "s":
+                if (map[y + 1][x] == 1 || map[y + 1][x] == 4) {
+                    return;
+                }
+                if (map[y + 1][x] == 2 && map[y + 2][x] != 1) {
+                    if (map[y + 2][x] == 4) {
+                        alert("成功！");
+                    }
+                    maplist[y + 2][x].appendChild(xiang);
+                    map[y + 1][x] = 0;
+                    map[y + 2][x] = 2;
+                }
+                y += 1;
+                if (map[y][x] == 0 && map[y][x] != 4) {
+                    maplist[y][x].appendChild(people);
+                    map[y][x] = 3;
+                    map[y - 1][x] = 0;
+                }
+                break;
+        }
+        people.setAttribute("data-x", x);
+        people.setAttribute("data-y", y);
+        console.log(maplist);
+    }
+</script>
+</body>
+</html>

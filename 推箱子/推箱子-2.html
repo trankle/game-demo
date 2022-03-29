@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="UTF-8">
+    <title>推箱子</title>
+    <style>
+        *{
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        .map{
+            width:842px;
+            height:842px;
+            border:  1px black solid;
+            margin: 0 auto;
+        }
+        .smallb{
+            float: left;
+            width: 70px;
+            height: 70px;
+            border: 1px black solid;
+        }
+        .wall,.destination{
+            background-size:68px 70px;
+        }
+        .wall{ background-image: url(img/qq.jpg);        }
+        .destination{background-image: url(img/zz.jpg);}
+        .people ,.box{
+            width: 100%;
+            height: 100%;
+        }
+    </style>
+</head>
+<body>
+<div class="map"></div>
+<script>
+    /*1.创建地图和对应div，对应数字添加图片
+     * 1  代表墙wall     2 代表箱子box      3 小人person    4. 终点destination
+     * 2.获取键盘移动 上下左右
+     * 3.上下左右 map,mapdiv改变
+     * */
+    var map = [
+        [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+        [1, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+        [1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+        [1, 0, 0, 2, 0, 1, 0, 0, 1, 0, 0, 1],
+        [1, 0, 1, 1, 0, 0, 0, 0, 1, 0, 0, 1],
+        [1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 1],
+        [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+        [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+        [1, 0, 0, 0, 0, 1, 1, 1, 0, 0, 0, 1],
+        [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+        [1, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+        [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
+    ];
+    var mapdiv=[];
+    var mapele=document.querySelector(".map");
+    var people,box;//newdiv 里面的图片元素
+    /*1.创建地图和对应div，对应数字添加图片*/
+    function creatMap(mapp){
+        mapp.forEach(function(valr,indr){
+            mapdiv.push([]);
+           valr.forEach(function(valc,indc){
+               //new div  .smallb{}
+               var newdiv=document.createElement("div");newdiv.className="smallb";
+               mapdiv[indr].push(newdiv);
+               //放入父元素 mapele中
+               mapele.appendChild(newdiv);
+               if(valc==1){
+                    newdiv.classList.add("wall");
+               }
+               else if(valc==2){
+/*                    newdiv.classList.add("box");*/
+                   box = document.createElement("img");
+                   box.className = "box";
+                   box.src = "./img/xx.jpg";
+                   newdiv.appendChild(box);
+               }
+               else if(valc==3){
+/*                    newdiv.classList.add("person");*/
+                   people = document.createElement("img");
+                   people.className = "people";
+                   people.src = "./img/people.png";
+                   people.setAttribute("map-row", indr);
+                   people.setAttribute("map-col", indc);
+                   newdiv.appendChild(people);
+               }
+               else if(valc==4){
+                    newdiv.classList.add("destination");
+               }
+           });
+        });
+    }
+window.onload= function () {
+    creatMap(map);
+    console.log(mapdiv);
+    /* * 2.获取键盘移动 上下左右*/
+    window.onkeypress=function(e){
+        //获取初始人的索引
+        var r=parseInt(people.getAttribute("map-row"));
+        var c=parseInt(people.getAttribute("map-col"));
+        switch(e.key){
+            case "w": wMove();break;
+            case "a": aMove();break;
+            case "s": sMove();break;
+            case "d": dMove();break;
+        }
+        people.setAttribute("map-row",r);
+        people.setAttribute("map-col",c);
+        /*3.上下左右 map,mapdiv改变*/
+        /*1  代表墙wall     2 代表箱子box      3 小人person 在 map[r][c]    4. 终点destination*/
+        //上面是-- 1wall 4destination，人不动return  / 0,人向上走 /  2box,人+box向上走 胜利 推不动return 推动
+        function wMove(){
+            if(map[r-1][c]==1 || map[r-1][c]==4){
+                return;
+            }
+            if(map[r-1][c]==0){
+                mapdiv[r-1][c].appendChild(people);
+                map[r][c]=0;
+                map[r-1][c]=3;
+                r-=1;
+            }
+            if(map[r-1][c]==2){
+                if(map[r-2][c]==4){
+                    alert("Good job!");
+                }else if(map[r-2][c]==1){
+                    return;
+                }else if(map[r-2][c]==0){
+                    mapdiv[r-2][c].appendChild(box);
+                    mapdiv[r-1][c].appendChild(people);
+                    map[r-2][c]=2;
+                    map[r-1][c]=3;
+                    map[r][c]=0;
+                    r-=1;
+                }
+            }
+        }
+        function sMove(){
+            if(map[r+1][c]==1 || map[r+1][c]==4){
+                return;
+            }
+            if(map[r+1][c]==0){
+                mapdiv[r+1][c].appendChild(people);
+                map[r][c]=0;
+                map[r+1][c]=3;
+                r+=1;
+            }
+            if(map[r+1][c]==2){
+                if(map[r+2][c]==4){
+                    alert("Good job!");
+                }else if(map[r+2][c]==1){
+                    return;
+                }else if(map[r+2][c]==0){
+                    mapdiv[r+2][c].appendChild(box);
+                    mapdiv[r+1][c].appendChild(people);
+                    map[r+2][c]=2;
+                    map[r+1][c]=3;
+                    map[r][c]=0;
+                    r+=1;
+                }
+            }
+        }
+        function aMove(){
+            if(map[r][c-1]==1 || map[r][c-1]==4){
+                return;
+            }
+            if(map[r][c-1]==0){
+                mapdiv[r][c-1].appendChild(people);
+                map[r][c]=0;
+                map[r][c-1]=3;
+                c-=1;
+            }
+            if(map[r][c-1]==2){
+                if(map[r][c-2]==4){
+                    alert("Good job!");
+                }else if(map[r][c-2]==1){
+                    return;
+                }else if(map[r][c-2]==0){
+                    mapdiv[r][c-2].appendChild(box);
+                    mapdiv[r][c-1].appendChild(people);
+                    map[r][c-2]=2;
+                    map[r][c-1]=3;
+                    map[r][c]=0;
+                    c-=1;
+                }
+            }
+        }
+        function dMove(){
+            if(map[r][c+1]==1 || map[r][c+1]==4){
+                return;
+            }
+            if(map[r][c+1]==0){
+                mapdiv[r][c+1].appendChild(people);
+                map[r][c]=0;
+                map[r][c+1]=3;
+                c+=1;
+            }
+            if(map[r][c+1]==2){
+                if(map[r][c+2]==4){
+                    alert("Good job!");
+                }else if(map[r][c+2]==1){
+                    return;
+                }else if(map[r][c+2]==0){
+                    mapdiv[r][c+2].appendChild(box);
+                    mapdiv[r][c+1].appendChild(people);
+                    map[r][c+2]=2;
+                    map[r][c+1]=3;
+                    map[r][c]=0;
+                    c+=1;
+                }
+            }
+        }
+    }
+}
+</script>
+</body>
+</html>
